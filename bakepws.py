@@ -15,7 +15,23 @@ import re
 import getopt
 
 
-def gen_lists(wordlist, rule, hashcat_path='/bin/hashcat'):
+# filter duplicate words in wordlist
+def filter_lists(wordlist):
+    for idx_word, word in enumerate(wordlist):
+        curr_word = word
+        for idx_other_word, other_word in enumerate(wordlist):
+            if other_word == curr_word and idx_word != idx_other_word:
+                wordlist.remove(other_word)
+
+    return wordlist
+
+
+def parse_line(line):
+    line = line.split()
+    return re.escape(line[0].strip())
+
+
+def gen_lists_hcat(wordlist, rule, hashcat_path='/bin/hashcat'):
     lists = []
     echo_path = '/bin/echo'
 
@@ -36,32 +52,46 @@ def gen_lists(wordlist, rule, hashcat_path='/bin/hashcat'):
 
     try:
         file = open(wordlist, 'r')
-    except:
-        print("Couldn't open wordlist.")
+
+        for line in file:
+            line = parse_line(line)
+            gen_words = os.popen("{} {} | {} -r {} --stdout"
+                                 "".format(echo_path, line, hashcat_path, rule)).read()
+            gen_list = gen_words.split()
+            gen_list = filter_lists(gen_list)
+            lists.append(gen_list)
+
+    except FileNotFoundError:
+        print("Couldn't find wordlist.")
         exit()
+    except:
+        print("Something went wrong. Please submit this issue")
+        exit()
+    finally:
+        file.close()
 
-    for line in file:
-        line = line.split()
-        line = line[0].strip()
-        line = re.escape(line)
-        gen_words = os.popen("{} {} | {} -r {} --stdout"
-                             "".format(echo_path, line, hashcat_path, rule)).read()
-        gen_list = gen_words.split()
-
-        # filter duplicate words in list
-        for idx_word, word in enumerate(gen_list):
-            curr_word = word
-            for idx_other_word, other_word in enumerate(gen_list):
-                if other_word == curr_word and idx_word != idx_other_word:
-                    gen_list.remove(other_word)
-
-        lists.append(gen_list)
-
-    file.close()
     return lists
 
 
-def gen_modded_list(lists, outfile):
+def gen_list(wordlist):
+    gen_list = []
+
+    try:
+        file = open(wordlist, 'r')
+
+        for line in file:
+            line = parse_line(line)
+            gen_list.append([line])
+    except FileNotFoundError:
+        print("Couldn't find wordlist.")
+        exit()
+    finally:
+        file.close()
+
+    return filter_lists(gen_list)
+
+
+def combine_words(lists, outfile):
     permutation_lists = []
     product_lists = []
 
@@ -106,27 +136,21 @@ def get_args():
     outfile = ""
     hashcat_path = ""
 
-    usage = 'Creating a password list with hashcat rules. \n' \
-            '\n' \
-            'Description:\n' \
-            'This tool takes words seperated by newlines from a file,\n' \
-            'generates for each word a list based on the hashcat rules supplied (using hashcat) and\n' \
-            'creates a wordlist with all possible combinations of the words that have been generated.\n' \
-            'Mmmmmm delicious.\n' \
+    usage = 'Creating a password-list with ease. \n' \
             '\n' \
             'Usage:\n' \
-            'python3 bakepws.py -i <input-file> -r <hashcat-rule>\n' \
+            'python3 bakepws.py [OPTIONS] -i <input-file>\n' \
             '\n' \
             'With no output file, print to standard output\n' \
             '\n' \
-            '-i:        path/to/input.file\n' \
-            '-r:        path/to/hashcat.rule\n' \
-            '-o:        path/to/output.file\n' \
-            '--cat:     path/to/hashcat\n' \
+            '      -i:     path/to/input.file\n' \
+            '      -r:     path/to/hashcat.rule\n' \
+            '      -o:     path/to/output.file\n' \
+            '   --cat:     path/to/hashcat\n' \
             '\n' \
-            'example:\n' \
-            'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt' \
-            '\n' \
+            'Examples:\n' \
+            'python3 bakepws.py -i examples/dough.txt\n' \
+            'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt\n'
 
     try:
         opts, args = getopt.getopt(argv, "i:r:o:", ['cat='])
@@ -144,7 +168,7 @@ def get_args():
         elif opt == '--cat':
             hashcat_path = arg
 
-    if wordlist == "" or rule == "":
+    if wordlist == "":
         print(usage)
         exit()
 
@@ -154,9 +178,11 @@ def get_args():
 if __name__ == '__main__':
     wordlist, rule, outfile, hashcat_path = get_args()
 
-    if hashcat_path == "":
-        lists = gen_lists(wordlist, rule)
+    if hashcat_path == "" and rule == "":
+        lists = gen_list(wordlist)
+    elif hashcat_path == "":
+        lists = gen_lists_hcat(wordlist, rule)
     else:
-        lists = gen_lists(wordlist, rule, hashcat_path)
+        lists = gen_lists_hcat(wordlist, rule, hashcat_path)
 
-    gen_modded_list(lists, outfile)
+    combine_words(lists, outfile)
