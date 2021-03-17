@@ -50,13 +50,14 @@ def gen_lists(wordlist, rule):
 
 
 def gen_modded_list(lists, outfile):
+    permutation_lists = []
     product_lists = []
 
-    list_length = len(lists)
-    for i in range(list_length):
-        product_lists.append(list(itertools.product(*lists)))
-        lists.append(lists[0])
-        lists.pop(0)
+    for tpl in list(itertools.permutations(lists)):
+        permutation_lists.append(list(tpl))
+
+    for li in permutation_lists:
+        product_lists.append(list(itertools.product(*li)))
 
     if outfile:
         try:
@@ -72,7 +73,7 @@ def gen_modded_list(lists, outfile):
                 string += str(element)
 
             # If the current string is the last element of the last list in product_lists: don't append a newline
-            if index == len(product_lists)-1 and len(product_lists[len(product_lists)-1])-1 == pl_index:
+            if index == len(product_lists) - 1 and len(product_lists[len(product_lists) - 1]) - 1 == pl_index:
                 string = string.strip()
             else:
                 string = string.strip() + "\n"
@@ -125,8 +126,8 @@ def get_args():
             outfile = arg
 
     if wordlist == "" or rule == "":
-            print(usage)
-            exit()
+        print(usage)
+        exit()
 
     return wordlist, rule, outfile
 
