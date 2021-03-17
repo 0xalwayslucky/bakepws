@@ -24,12 +24,13 @@ python3 bakepws.py -i <input-file> -r <hashcat-rule> [-o <output-file>]
 
 With no output file, print to standard output
 
--i: path/to/input.file
--r: path/to/hashcat.rule
--o: path/to/output.file
+-i:         path/to/input.file
+-r:         path/to/hashcat.rule
+-o:         path/to/output.file
+--cat:      path/to/hashcat
 
 example:
-python3 bakepws.py -i examples/dough.txt -r examples/receipt.rule -o examples/cake.txt
+python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt
 ```
 
 

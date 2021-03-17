@@ -15,11 +15,23 @@ import re
 import getopt
 
 
-def gen_lists(wordlist, rule):
+def gen_lists(wordlist, rule, hashcat_path='/bin/hashcat'):
     lists = []
+    echo_path = '/bin/echo'
 
     if not os.path.isfile(rule):
         print("Couldn't find hashcat rule.")
+        exit()
+
+    if not os.path.isfile(hashcat_path):
+        if os.path.isfile('/usr{}'.format(hashcat_path)):
+            hashcat_path = '/usr{}'.format(hashcat_path)
+        else:
+            print("Invalid path to hashcat executable. If it is please specify a custom path with --cat")
+            exit()
+
+    if not os.path.isfile(echo_path):
+        print("Couldn't find executable {}".format(echo_path))
         exit()
 
     try:
@@ -32,8 +44,8 @@ def gen_lists(wordlist, rule):
         line = line.split()
         line = line[0].strip()
         line = re.escape(line)
-        gen_words = os.popen("echo {} | hashcat -r {} --stdout"
-                             "".format(line, rule)).read()
+        gen_words = os.popen("{} {} | {} -r {} --stdout"
+                             "".format(echo_path, line, hashcat_path, rule)).read()
         gen_list = gen_words.split()
 
         # filter duplicate words in list
@@ -92,6 +104,7 @@ def get_args():
     wordlist = ""
     rule = ""
     outfile = ""
+    hashcat_path = ""
 
     usage = 'Creating a password list with hashcat rules. \n' \
             '\n' \
@@ -103,18 +116,19 @@ def get_args():
             '\n' \
             'Usage:\n' \
             'python3 bakepws.py -i <input-file> -o <output-file> -r <hashcat-rule>\n' \
-            '-i: path/to/input.file\n' \
-            '-r: path/to/hashcat.rule\n' \
-            '-o: path/to/output.file\n' \
+            '-i:        path/to/input.file\n' \
+            '-r:        path/to/hashcat.rule\n' \
+            '-o:        path/to/output.file\n' \
+            '--cat:     path/to/hashcat' \
             '\n' \
             'example:\n' \
-            'python3 bakepws.py -i examples/dough.txt -r examples/receipt.rule -o examples/cake.txt' \
+            'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt' \
             '\n' \
 
     try:
-        opts, args = getopt.getopt(argv, "i:r:o:h:")
+        opts, args = getopt.getopt(argv, "i:r:o:", ['cat='])
     except:
-        print("Error")
+        print('Invalid syntax.')
         exit()
 
     for opt, arg in opts:
@@ -124,15 +138,22 @@ def get_args():
             rule = arg
         elif opt in ['-o']:
             outfile = arg
+        elif opt == '--cat':
+            hashcat_path = arg
 
     if wordlist == "" or rule == "":
         print(usage)
         exit()
 
-    return wordlist, rule, outfile
+    return wordlist, rule, outfile, hashcat_path
 
 
 if __name__ == '__main__':
-    wordlist, rule, outfile = get_args()
-    lists = gen_lists(wordlist, rule)
+    wordlist, rule, outfile, hashcat_path = get_args()
+
+    if hashcat_path == "":
+        lists = gen_lists(wordlist, rule)
+    else:
+        lists = gen_lists(wordlist, rule, hashcat_path)
+
     gen_modded_list(lists, outfile)
