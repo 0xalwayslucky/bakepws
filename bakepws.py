@@ -117,12 +117,12 @@ def get_args():
             'Usage:\n' \
             'python3 bakepws.py -i <input-file> -r <hashcat-rule>\n' \
             '\n' \
-            'With no output file, print to standard output' \
+            'With no output file, print to standard output\n' \
             '\n' \
             '-i:        path/to/input.file\n' \
             '-r:        path/to/hashcat.rule\n' \
             '-o:        path/to/output.file\n' \
-            '--cat:     path/to/hashcat' \
+            '--cat:     path/to/hashcat\n' \
             '\n' \
             'example:\n' \
             'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt' \
