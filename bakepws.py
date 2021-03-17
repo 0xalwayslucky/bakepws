@@ -34,7 +34,16 @@ def gen_lists(wordlist, rule):
         line = re.escape(line)
         gen_words = os.popen("echo {} | hashcat -r {} --stdout"
                              "".format(line, rule)).read()
-        lists.append(gen_words.split())
+        gen_list = gen_words.split()
+
+        # filter duplicate words in list
+        for idx_word, word in enumerate(gen_list):
+            curr_word = word
+            for idx_other_word, other_word in enumerate(gen_list):
+                if other_word == curr_word and idx_word != idx_other_word:
+                    gen_list.remove(other_word)
+
+        lists.append(gen_list)
 
     file.close()
     return lists
