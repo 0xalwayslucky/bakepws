@@ -20,7 +20,7 @@ creates a wordlist with all possible combinations of the words that have been ge
 Mmmmmm delicious.
 
 Usage:
-python3 bakepws.py -i <input-file> -r <hashcat-rule> [-o <output-file>]
+python3 bakepws.py -i <input-file> -r <hashcat-rule>
 
 With no output file, print to standard output
 

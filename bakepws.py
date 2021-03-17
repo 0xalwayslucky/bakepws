@@ -115,7 +115,10 @@ def get_args():
             'Mmmmmm delicious.\n' \
             '\n' \
             'Usage:\n' \
-            'python3 bakepws.py -i <input-file> -o <output-file> -r <hashcat-rule>\n' \
+            'python3 bakepws.py -i <input-file> -r <hashcat-rule>\n' \
+            '\n' \
+            'With no output file, print to standard output' \
+            '\n' \
             '-i:        path/to/input.file\n' \
             '-r:        path/to/hashcat.rule\n' \
             '-o:        path/to/output.file\n' \
