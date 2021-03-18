@@ -91,13 +91,16 @@ def gen_list(wordlist):
     return filter_lists(gen_list)
 
 
-def combine_words(lists):
+# start & end is the range of how many words to combine
+# e.g. 0 and 4 would combine up to 4 words (including combinations below 4)
+def combine_words(lists, start, end):
     permutation_lists = []
     product_lists = []
     password_list = ""
 
-    for tpl in list(itertools.permutations(lists)):
-        permutation_lists.append(list(tpl))
+    for i in range(start+1, end+2):
+        for tpl in list(itertools.permutations(lists, i)):
+            permutation_lists.append(list(tpl))
 
     for li in permutation_lists:
         product_lists.append(list(itertools.product(*li)))
@@ -137,6 +140,7 @@ def get_args():
     rule = ""
     outfile = ""
     hashcat_path = ""
+    all = False
 
     usage = 'Creating a password-list with ease. \n' \
             '\n' \
@@ -145,17 +149,19 @@ def get_args():
             '\n' \
             'With no output file, print to standard output\n' \
             '\n' \
-            '      -i:     path/to/input.file\n' \
-            '      -r:     path/to/hashcat.rule\n' \
-            '      -o:     path/to/output.file\n' \
-            '   --cat:     path/to/hashcat\n' \
+            '      -i:     Specify an input file\n' \
+            '      -r:     Specify a hashcat rule\n' \
+            '      -o:     Specify an output file\n' \
+            '      -a:     Print all words and combinations\n' \
+            '   --cat:     Specify a custom hashcat path\n' \
             '\n' \
             'Examples:\n' \
             'python3 bakepws.py -i examples/dough.txt\n' \
+            'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -a\n' \
             'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt\n'
 
     try:
-        opts, args = getopt.getopt(argv, "i:r:o:", ['cat='])
+        opts, args = getopt.getopt(argv, "i:r:o:a", ['cat='])
 
         for opt, arg in opts:
             if opt in ['-i']:
@@ -164,6 +170,8 @@ def get_args():
                 rule = arg
             elif opt in ['-o']:
                 outfile = arg
+            elif opt in ['-a']:
+                all = True
             elif opt == '--cat':
                 hashcat_path = arg
     except:
@@ -174,11 +182,11 @@ def get_args():
         print(usage)
         exit()
 
-    return wordlist, rule, outfile, hashcat_path
+    return wordlist, rule, outfile, hashcat_path, all
 
 
 if __name__ == '__main__':
-    wordlist, rule, outfile, hashcat_path = get_args()
+    wordlist, rule, outfile, hashcat_path, all = get_args()
 
     if hashcat_path == "" and rule == "":
         lists = gen_list(wordlist)
@@ -187,5 +195,11 @@ if __name__ == '__main__':
     else:
         lists = gen_lists_hcat(wordlist, rule, hashcat_path)
 
-    password_list = combine_words(lists)
+    start = len(lists)-1
+    end = len(lists)-1
+
+    if all:
+        start = 0
+
+    password_list = combine_words(lists, start, end)
     output(password_list, outfile)
