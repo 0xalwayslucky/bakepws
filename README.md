@@ -3,26 +3,26 @@
 I created this tool to generate a lot of passwords for a specific target with minimum
 effort.
 ## Documentation
-###**What is it doing?**
+### What is it doing?
 ```
 Without any modifications all words of the input file will be combined until no more
 variations are left and printed to standard output.
 ```
 
-###**How do I use it?**
+### How do I use it?
 ```
 -i      Specify an input file. Only the first word of the line will be considered, so
         one word per line.
 ```
 
-###**What do you mean, modifications?!**
+### What do you mean, modifications?!
 ```
 -r      When supplying a hashcat rule bakepws.py uses hashcat to generate modified
         lists for each word before combining the words.
 ```
 _Note: Hashcat has to be installed in order to use this option. More about [hashcat](https://github.com/hashcat) and [hashcat rules](https://hashcat.net/wiki/doku.php?id=rule_based_attack)_
 
-###**Just give me everything you have!**
+### Just give me everything you have!
 ```
 -a      Using the -a (all) option will - in addition to combining the words - 
         also include the words itself and combinations that do not use all
@@ -35,19 +35,19 @@ _Note: Hashcat has to be installed in order to use this option. More about [hash
           output
 ```
 
-###**What do I do with the output?**
+### What do I do with the output?
 ```
 -o      Specify an output file. With no output file specified, standard output will be
         used.
 ```
 
-###**It doesn't find my Cat! Wat now?**
+### It doesn't find my Cat! Wat now?
 ```
 --cat   Specify a custom hashcat path. On default /bin/hashcat and /usr/bin/hashcat
         will be checked.
 ```
 
-###**Do you have sample output for me?**
+### Do you have sample output for me?
 ```
 > python3 bakepws.py -i examples/dough.txt -r examples/receipe.rule -o examples/cake.txt
 
@@ -57,7 +57,7 @@ examples/
 > cake.txt      ->   output file
 ```
 
-##**Usage**
+## Usage
 ```
 Creating a password-list with ease. 
 
