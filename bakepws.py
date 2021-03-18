@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 """
-Creating a password list with hashcat rules
-Hashcat has to be installed in order to work
+Creating a password-list with ease.
+Hashcat has to be installed in order to work with rules.
 
 Hashcat: https://github.com/hashcat
 Author: https://github.com/0xalwayslucky
@@ -61,14 +61,14 @@ def gen_lists_hcat(wordlist, rule, hashcat_path='/bin/hashcat'):
             gen_list = filter_lists(gen_list)
             lists.append(gen_list)
 
+        file.close()
+
     except FileNotFoundError:
         print("Couldn't find wordlist.")
         exit()
     except:
         print("Something went wrong. Please submit this issue")
         exit()
-    finally:
-        file.close()
 
     return lists
 
@@ -82,18 +82,19 @@ def gen_list(wordlist):
         for line in file:
             line = parse_line(line)
             gen_list.append([line])
+
+        file.close()
     except FileNotFoundError:
         print("Couldn't find wordlist.")
         exit()
-    finally:
-        file.close()
 
     return filter_lists(gen_list)
 
 
-def combine_words(lists, outfile):
+def combine_words(lists):
     permutation_lists = []
     product_lists = []
+    password_list = ""
 
     for tpl in list(itertools.permutations(lists)):
         permutation_lists.append(list(tpl))
@@ -101,32 +102,33 @@ def combine_words(lists, outfile):
     for li in permutation_lists:
         product_lists.append(list(itertools.product(*li)))
 
-    if outfile:
-        try:
-            file = open(outfile, 'w')
-        except:
-            print("Couldn't open output file.")
-            exit()
-
     for index, product in enumerate(product_lists):
         for pl_index, plist in enumerate(product_lists[index]):
             string = ''
             for element in plist:
                 string += str(element)
 
-            # If the current string is the last element of the last list in product_lists: don't append a newline
-            if index == len(product_lists) - 1 and len(product_lists[len(product_lists) - 1]) - 1 == pl_index:
-                string = string.strip()
-            else:
-                string = string.strip() + "\n"
+            password_list += string.strip() + '\n'
 
-            if outfile:
-                file.write(string)
-            else:
-                print(string.strip())
+    return password_list.rstrip()
 
+
+def output(string, outfile):
     if outfile:
-        file.close()
+        try:
+            file = open(outfile, 'w')
+            try:
+                file.write(string)
+            finally:
+                file.close()
+        except FileNotFoundError as fnfe:
+            print("Error in output: {}".format(fnfe))
+            exit()
+        except IOError as ioe:
+            print("Error in output: {}".format(ioe))
+            exit()
+    else:
+        print(string)
 
 
 def get_args():
@@ -154,19 +156,19 @@ def get_args():
 
     try:
         opts, args = getopt.getopt(argv, "i:r:o:", ['cat='])
+
+        for opt, arg in opts:
+            if opt in ['-i']:
+                wordlist = arg
+            elif opt in ['-r']:
+                rule = arg
+            elif opt in ['-o']:
+                outfile = arg
+            elif opt == '--cat':
+                hashcat_path = arg
     except:
         print('Invalid syntax.')
         exit()
-
-    for opt, arg in opts:
-        if opt in ['-i']:
-            wordlist = arg
-        elif opt in ['-r']:
-            rule = arg
-        elif opt in ['-o']:
-            outfile = arg
-        elif opt == '--cat':
-            hashcat_path = arg
 
     if wordlist == "":
         print(usage)
@@ -185,4 +187,5 @@ if __name__ == '__main__':
     else:
         lists = gen_lists_hcat(wordlist, rule, hashcat_path)
 
-    combine_words(lists, outfile)
+    password_list = combine_words(lists)
+    output(password_list, outfile)
