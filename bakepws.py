@@ -140,7 +140,9 @@ def get_args():
     rule = ""
     outfile = ""
     hashcat_path = ""
-    all = False
+    start = -1
+    end = -1
+    c_set = False
 
     usage = 'Creating a password-list with ease. \n' \
             '\n' \
@@ -153,6 +155,9 @@ def get_args():
             '      -r:     Specify a hashcat rule\n' \
             '      -o:     Specify an output file\n' \
             '      -a:     Print all words and combinations\n' \
+            '      -c:     Combine exactly n word(s)' \
+            '   --min:     Specify minimum amount of combinations\n' \
+            '   --max:     Specify maximum amount of combinations\n' \
             '   --cat:     Specify a custom hashcat path\n' \
             '\n' \
             'Examples:\n' \
@@ -161,7 +166,7 @@ def get_args():
             'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt\n'
 
     try:
-        opts, args = getopt.getopt(argv, "i:r:o:a", ['cat='])
+        opts, args = getopt.getopt(argv, "i:r:o:ac:", ['cat=', 'min=', 'max='])
 
         for opt, arg in opts:
             if opt in ['-i']:
@@ -171,7 +176,36 @@ def get_args():
             elif opt in ['-o']:
                 outfile = arg
             elif opt in ['-a']:
-                all = True
+                start = 0
+            elif opt in ['-c']:
+
+                if int(arg) < 0:
+                    raise ValueError
+
+                start = int(arg)
+                end = int(arg)
+                c_set = True
+
+            elif opt == '--min':
+
+                if c_set:
+                    continue
+
+                if int(arg) < 0:
+                    raise ValueError
+
+                start = int(arg)
+
+            elif opt == '--max':
+
+                if c_set:
+                    continue
+
+                if int(arg) < 0:
+                    raise ValueError
+
+                end = int(arg)
+
             elif opt == '--cat':
                 hashcat_path = arg
     except:
@@ -182,11 +216,11 @@ def get_args():
         print(usage)
         exit()
 
-    return wordlist, rule, outfile, hashcat_path, all
+    return wordlist, rule, outfile, hashcat_path, start, end
 
 
 if __name__ == '__main__':
-    wordlist, rule, outfile, hashcat_path, all = get_args()
+    wordlist, rule, outfile, hashcat_path, start, end = get_args()
 
     if hashcat_path == "" and rule == "":
         lists = gen_list(wordlist)
@@ -195,11 +229,22 @@ if __name__ == '__main__':
     else:
         lists = gen_lists_hcat(wordlist, rule, hashcat_path)
 
-    start = len(lists)-1
-    end = len(lists)-1
-
-    if all:
+    # if start and end weren't set, combine all words from input
+    if start == -1 and end == -1:
+        start = len(lists)-1
+        end = len(lists)-1
+    # if --max has been set default start to 0
+    elif end != -1 and start == -1:
         start = 0
+    # if --min has been set default end to length list
+    elif end == -1 and start != -1:
+        end = len(lists)-1
+
+    if start > len(lists)-1:
+        start = len(lists)-1
+
+    if end > len(lists)-1:
+        end = len(lists)-1
 
     password_list = combine_words(lists, start, end)
     output(password_list, outfile)

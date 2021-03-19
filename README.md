@@ -26,6 +26,15 @@ variations are left and printed to standard output.
 
 -o      Specify an output file. With no output file specified, standard output will be
         used.
+       
+-c      Specify the exact amount of combinations. n means one word combined with n others.
+        When specifying this, --min and --max will be ignored.
+        
+--min   Sepcify the amount of minimum combinations. 0 means no combinations will be made.
+        When specifying --min, --max will default to maximum possible length.
+
+--max   Specify the amount of maximum combinations. n means one word combined with n 
+        others. When specifying --max, --min will default to 0.
 
 --cat   Specify a custom hashcat path. On default /bin/hashcat and /usr/bin/hashcat
         will be checked.
