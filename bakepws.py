@@ -143,6 +143,7 @@ def get_args():
     start = -1
     end = -1
     c_set = False
+    a_set = False
 
     usage = 'Creating a password-list with ease. \n' \
             '\n' \
@@ -177,7 +178,11 @@ def get_args():
                 outfile = arg
             elif opt in ['-a']:
                 start = 0
+                a_set = True
             elif opt in ['-c']:
+
+                if a_set:
+                    continue
 
                 if int(arg) < 0:
                     raise ValueError
@@ -188,7 +193,7 @@ def get_args():
 
             elif opt == '--min':
 
-                if c_set:
+                if c_set or a_set:
                     continue
 
                 if int(arg) < 0:
@@ -198,7 +203,7 @@ def get_args():
 
             elif opt == '--max':
 
-                if c_set:
+                if c_set or a_set:
                     continue
 
                 if int(arg) < 0:
@@ -233,10 +238,10 @@ if __name__ == '__main__':
     if start == -1 and end == -1:
         start = len(lists)-1
         end = len(lists)-1
-    # if --max has been set default start to 0
+    # if end has been set default start to 0
     elif end != -1 and start == -1:
         start = 0
-    # if --min has been set default end to length list
+    # if start has been set default end to length list
     elif end == -1 and start != -1:
         end = len(lists)-1
 
