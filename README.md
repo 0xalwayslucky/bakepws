@@ -28,7 +28,7 @@ variations are left and printed to standard output.
         used.
        
 -c      Specify the exact amount of combinations. n means one word combined with n others.
-        When specifying this, --min and --max will be ignored.
+        When specifying -c, --min and --max will be ignored.
         
 --min   Sepcify the amount of minimum combinations. 0 means no combinations will be made.
         When specifying --min, --max will default to maximum possible length.
