@@ -156,7 +156,7 @@ def get_args():
             '      -r:     Specify a hashcat rule\n' \
             '      -o:     Specify an output file\n' \
             '      -a:     Print all words and combinations\n' \
-            '      -c:     Combine exactly n word(s)' \
+            '      -c:     Combine exactly n word(s)\n' \
             '   --min:     Specify minimum amount of combinations\n' \
             '   --max:     Specify maximum amount of combinations\n' \
             '   --cat:     Specify a custom hashcat path\n' \

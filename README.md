@@ -64,6 +64,9 @@ With no output file, print to standard output
       -r:     Specify a hashcat rule
       -o:     Specify an output file
       -a:     Print all words and combinations
+      -c:     Combine exactly n word(s)
+   --min:     Specify minimum amount of combinations
+   --max:     Specify maximum amount of combinations
    --cat:     Specify a custom hashcat path
 
 Examples:
