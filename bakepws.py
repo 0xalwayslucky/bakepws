@@ -15,16 +15,16 @@ import re
 import getopt
 
 
-# filter duplicate words in generated hashcat lists
-def filter_list_hcat(hcat_list):
-    for idx_word, word in enumerate(hcat_list):
+# filter duplicate elements from list
+def filter_list(somelist):
+    for idx_element, element in enumerate(somelist):
 
-        curr_word = word
-        for idx_other_word, other_word in enumerate(hcat_list):
-            if other_word == curr_word and idx_word != idx_other_word:
-                hcat_list.remove(other_word)
+        current_element = element
+        for idx_other_element, other_element in enumerate(somelist):
+            if other_element == current_element and idx_element != idx_other_element:
+                somelist.remove(other_element)
 
-    return hcat_list
+    return somelist
 
 
 # Filter things from input file here
@@ -70,7 +70,7 @@ def gen_lists_hcat(wordlist, rule, hashcat_path='/bin/hashcat'):
                                  "".format(echo_path, line, hashcat_path, rule)).read()
 
             gen_list = gen_words.split()
-            gen_list = filter_list_hcat(gen_list)
+            gen_list = filter_list(gen_list)
             lists.append(gen_list)
 
         file.close()
@@ -119,6 +119,8 @@ def combine_words(lists, start, end):
         for tpl in list(itertools.permutations(lists, i)):
             permutation_lists.append(list(tpl))
 
+    filter_list(permutation_lists)
+
     for li in permutation_lists:
         product_lists.append(list(itertools.product(*li)))
 
@@ -134,6 +136,7 @@ def combine_words(lists, start, end):
 
 
 def output(string, outfile):
+
     if outfile:
         try:
             file = open(outfile, 'w')
