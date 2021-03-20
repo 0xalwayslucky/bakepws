@@ -17,9 +17,7 @@ import getopt
 
 # filter duplicate elements from list
 def filter_list(somelist):
-    for idx_element, element in enumerate(somelist):
-
-        current_element = element
+    for idx_element, current_element in enumerate(somelist):
         for idx_other_element, other_element in enumerate(somelist):
             if other_element == current_element and idx_element != idx_other_element:
                 somelist.remove(other_element)
