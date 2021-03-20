@@ -43,7 +43,7 @@ _Note: Hashcat has to be installed in order to use the -r option. More about [ha
 
 ### Do you have sample output for me?
 ```
-> python3 bakepws.py -i examples/dough.txt -r examples/receipe.rule -o examples/cake.txt
+> python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt
 
 examples/
 > dough.txt     ->   input file
