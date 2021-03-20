@@ -152,17 +152,7 @@ def output(string, outfile):
         print(string)
 
 
-def get_args():
-    argv = sys.argv[1:]
-    wordlist = ""
-    rule = ""
-    outfile = ""
-    hashcat_path = ""
-    start = -1
-    end = -1
-    c_set = False
-    a_set = False
-
+def print_usage():
     usage = 'Creating a password-list with ease. \n' \
             '\n' \
             'Usage:\n' \
@@ -183,6 +173,19 @@ def get_args():
             'python3 bakepws.py -i examples/dough.txt\n' \
             'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -a\n' \
             'python3 bakepws.py -i examples/dough.txt -r examples/recipe.rule -o examples/cake.txt\n'
+    print(usage)
+
+
+def get_args():
+    argv = sys.argv[1:]
+    wordlist = ""
+    rule = ""
+    outfile = ""
+    hashcat_path = ""
+    start = -1
+    end = -1
+    c_set = False
+    a_set = False
 
     try:
         opts, args = getopt.getopt(argv, "i:r:o:ac:", ['cat=', 'min=', 'max='])
@@ -236,7 +239,7 @@ def get_args():
         exit()
 
     if wordlist == "":
-        print(usage)
+        print_usage()
         exit()
 
     return wordlist, rule, outfile, hashcat_path, start, end
