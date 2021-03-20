@@ -15,20 +15,26 @@ import re
 import getopt
 
 
-# filter duplicate words in wordlist
-def filter_lists(wordlist):
-    for idx_word, word in enumerate(wordlist):
+# filter duplicate words in generated hashcat lists
+def filter_list_hcat(hcat_list):
+    for idx_word, word in enumerate(hcat_list):
+
         curr_word = word
-        for idx_other_word, other_word in enumerate(wordlist):
+        for idx_other_word, other_word in enumerate(hcat_list):
             if other_word == curr_word and idx_word != idx_other_word:
-                wordlist.remove(other_word)
+                hcat_list.remove(other_word)
 
-    return wordlist
+    return hcat_list
 
 
+# Filter things from input file here
 def parse_line(line):
     line = line.split()
-    return re.escape(line[0].strip())
+
+    if len(line) > 0:
+        return True, re.escape(line[0].strip())
+
+    return False, ''
 
 
 def gen_lists_hcat(wordlist, rule, hashcat_path='/bin/hashcat'):
@@ -54,11 +60,17 @@ def gen_lists_hcat(wordlist, rule, hashcat_path='/bin/hashcat'):
         file = open(wordlist, 'r')
 
         for line in file:
-            line = parse_line(line)
-            gen_words = os.popen("{} {} | {} -r {} --stdout"
+            success, line = parse_line(line)
+
+            if not success:
+                continue
+
+            gen_words = os.popen("{} {} | {} -r {} --stdout 2> /dev/null "
+                                 "| grep -v 'Skipping invalid or unsupported rule'"
                                  "".format(echo_path, line, hashcat_path, rule)).read()
+
             gen_list = gen_words.split()
-            gen_list = filter_lists(gen_list)
+            gen_list = filter_list_hcat(gen_list)
             lists.append(gen_list)
 
         file.close()
@@ -80,7 +92,12 @@ def gen_list(wordlist):
         file = open(wordlist, 'r')
 
         for line in file:
-            line = parse_line(line)
+            success, line = parse_line(line)
+
+            if not success:
+                continue
+
+            # [line] -> workaround for combine_words function, so the words actually get parsed
             gen_list.append([line])
 
         file.close()
@@ -88,7 +105,7 @@ def gen_list(wordlist):
         print("Couldn't find wordlist.")
         exit()
 
-    return filter_lists(gen_list)
+    return gen_list
 
 
 # start & end is the range of how many words to combine
